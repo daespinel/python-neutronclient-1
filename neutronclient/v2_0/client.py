@@ -658,6 +658,9 @@ class Client(ClientBase):
     network_logs_path = "/log/logs"
     network_log_path = "/log/logs/%s"
     network_loggables_path = "/log/loggable-resources"
+    interconnections_path = "/inter/interconnections"
+    interconnection_path = "/inter/interconnections/%s"
+    interconnection_refresh_path = "/inter/interconnections/%s/refresh"
 
     # API has no way to report plurals, so we have to hard code them
     EXTED_PLURALS = {'routers': 'router',
@@ -719,6 +722,7 @@ class Client(ClientBase):
                      'service_graphs': 'service_graph',
                      'logs': 'log',
                      'loggable_resources': 'loggable_resource',
+                     'inters': 'inter',
                      }
 
     def list_ext(self, collection, path, retrieve_all, **_params):
@@ -2375,6 +2379,33 @@ class Client(ClientBase):
         """Onboard the specified network's subnets into a subnet pool."""
         return self.put(self.onboard_network_subnets_path % (subnetpool),
                         body=body)
+
+    def create_interconnection(self, body=None):
+        """Create the specified interconnection."""
+        return self.post(self.interconnections_path, body=body)
+
+    def update_interconnection(self, interconnection, body=None):
+        """Update an interconnection."""
+        return self.put(self.interconnection_path % interconnection,
+                        body=body)
+
+    def delete_interconnection(self, interconnection):
+        """Delete the specified interconnection."""
+        return self.delete(self.interconnection_path % interconnection)
+
+    def list_interconnections(self, retrieve_all=True, **_params):
+        """Fetch a list of all interconnections."""
+        return self.list('interconnections', self.interconnections_path,
+                         retrieve_all, **_params)
+
+    def show_interconnection(self, interconnection, **_params):
+        """Fetch information for a certain interconnection."""
+        return self.get(self.interconnection_path % interconnection,
+                        params=_params)
+
+    def interconnection_refresh(self, interconnection):
+        """Ask remote Neutron instance to refresh interconnection state."""
+        return self.put(self.interconnection_refresh_path % interconnection)
 
     def __init__(self, **kwargs):
         """Initialize a new client for the Neutron v2.0 API."""
